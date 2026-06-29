@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --version)",
+      "Bash(node -e ' *)",
+      "Bash(npm install *)",
+      "Bash(npx expo *)",
+      "Bash(cat /tmp/expo_output.txt)",
+      "Bash(git add *)"
+    ]
+  }
+}

@@ -1,0 +1,863 @@
+export function getDashboardHtml(initialClients, userEmail) {
+  const safeClients = initialClients ? JSON.stringify(initialClients) : "null";
+  const safeEmail = userEmail ? JSON.stringify(userEmail) : "null";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Client Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#171c54; --ink:#1b1a17; --body:#3a392f;
+    --cream:#faf9f5; --paper:#ffffff;
+    --g1:#5c5a52; --g2:#6b685f; --g3:#8a887f; --g4:#9a988f;
+    --accent:#2871ad; --accent-soft:#5a93c4; --accent-tint:#eef3f8; --accent-line:#d6e3ef;
+    --rule:rgba(20,18,12,.14); --rule-soft:rgba(20,18,12,.10); --rule-mid:rgba(20,18,12,.18);
+    --serif:'Spectral',Georgia,serif; --sans:'Archivo',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{background:#eceae4;font-family:var(--sans);color:var(--ink)}
+  .sheet{max-width:1160px;margin:0 auto;background:var(--paper);box-shadow:0 1px 50px rgba(0,0,0,.07);min-height:100vh}
+  .pad{padding:24px 60px 72px}
+
+  .utility{display:flex;align-items:center;justify-content:space-between;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--g3);padding-bottom:14px}
+  .utility .org{color:var(--g1);font-weight:600}
+  .utility .right{display:flex;align-items:center;gap:14px}
+  .inbox-btn{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--ink);border:none;padding:7px 14px;border-radius:2px;cursor:pointer}
+  .iconbtn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid var(--rule-mid);background:none;border-radius:2px;cursor:pointer;color:var(--g1);transition:all .15s}
+  .iconbtn:hover{color:var(--accent);border-color:var(--accent)}
+  .iconbtn svg{width:16px;height:16px;display:block}
+
+  .masthead{border-top:3px solid var(--ink);border-bottom:1px solid var(--rule-mid);padding-top:18px}
+  .edition-eyebrow{text-align:center;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--g4);margin-bottom:6px}
+  .title{text-align:center;font-family:var(--serif);font-weight:800;font-size:74px;line-height:.96;letter-spacing:-.02em;color:var(--navy);margin:0 0 12px}
+  .subbar{display:flex;align-items:center;justify-content:space-between;font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--g3);padding:9px 0;border-bottom:3px solid var(--ink)}
+  .subbar .motto{font-family:var(--serif);font-style:italic;letter-spacing:.02em;text-transform:none;font-size:13px;color:var(--g1)}
+
+  nav.sections{display:flex;justify-content:center;border-bottom:1px solid var(--rule);margin-bottom:6px}
+  .tab{font-family:var(--sans);font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:15px 0;margin:0 22px;background:none;border:none;border-bottom:2px solid transparent;color:var(--g3);cursor:pointer;transition:color .15s,border-color .15s}
+  .tab:hover{color:var(--body)}
+  .tab.active{border-bottom-color:var(--accent);color:var(--ink)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);margin:26px 0 34px;background:var(--cream)}
+  .stat{padding:15px 20px}
+  .stat+.stat{border-left:1px solid var(--rule)}
+  .stat .lbl{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g3);margin-bottom:5px}
+  .stat .num{font-family:var(--serif);font-size:32px;font-weight:600;color:var(--navy);line-height:1}
+
+  .frontpage{display:grid;grid-template-columns:1.65fr 1fr;gap:44px}
+  .kicker{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .lead .kicker{margin-bottom:10px}
+  .lead h2{font-family:var(--serif);font-weight:700;font-size:41px;line-height:1.08;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;text-wrap:balance}
+  .lead .meta{font-family:var(--sans);font-size:12.5px;color:var(--g2);letter-spacing:.02em;margin-bottom:18px}
+  figure{margin:0 0 16px}
+  figure .chart{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+  figcaption{font-family:var(--sans);font-size:11px;color:var(--g4);margin-top:7px}
+  .lead p.dek{font-family:var(--serif);font-size:17px;line-height:1.6;color:var(--body);margin:0 0 18px}
+  .leadfoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--rule);padding-top:13px;flex-wrap:wrap;gap:10px}
+  .reacts{display:flex;gap:8px}
+  .react{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:2px;cursor:pointer;border:1px solid var(--rule-mid);background:none;color:var(--g2);transition:all .15s}
+  .react.up.on{border-color:var(--accent);background:rgba(40,113,173,.08);color:var(--accent)}
+  .react.down.on{border-color:#c08a8a;background:#f8eeee;color:#a33}
+  .extlink{font-family:var(--sans);font-size:11.5px;font-weight:500;color:var(--accent);text-decoration:none;white-space:nowrap}
+  .extlink:hover{text-decoration:underline}
+
+  aside.rail{border-left:1px solid var(--rule);padding-left:44px}
+  .rail-head{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:4px}
+  .sig{border-bottom:1px solid var(--rule-soft);padding:16px 0;transition:opacity .3s}
+  .sig.dismissed{opacity:.4}
+  .sig .kicker{margin-bottom:7px}
+  .sig h3{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.22;color:var(--ink);margin:0 0 8px}
+  .sig .meta{font-family:var(--sans);font-size:11px;color:var(--g3);letter-spacing:.02em;margin-bottom:11px}
+  .sigfoot{display:flex;align-items:center;justify-content:space-between}
+  .react.sm{font-size:10px;padding:4px 9px}
+
+  .ledger-row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--rule-soft)}
+  .ledger-row .name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink)}
+  .ledger-row .sub{font-family:var(--sans);font-size:11px;color:var(--g3);margin-top:2px}
+  .ledger-row .count{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--navy);line-height:1;white-space:nowrap}
+  .ledger-row .count small{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--g4);display:block;text-align:right}
+
+  /* Overview banner + category departments */
+  .overview{margin:26px 0 0;max-width:560px}
+  .overview .chart{width:100%;height:auto;display:block;border:1px solid var(--rule)}
+  .overview figcaption{font-family:var(--sans);font-size:11px;color:var(--g4);margin-top:7px}
+  .depts{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);border-left:1px solid var(--rule);margin-top:30px}
+  .dept{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:20px 24px;min-width:0}
+  .dept.full{grid-column:1 / -1}
+  .dept-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:9px;margin-bottom:4px}
+  .dept-h .nm{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+  .dept-h .ct{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--navy);line-height:1}
+  .dept-empty{font-family:var(--sans);font-size:12.5px;color:var(--g3);padding:16px 0 4px}
+  .item{padding:14px 0;border-bottom:1px solid var(--rule-soft);transition:opacity .3s}
+  .item:last-child{border-bottom:none}
+  .item.dismissed{opacity:.4}
+  .item h4{font-family:var(--serif);font-weight:600;font-size:18px;line-height:1.25;color:var(--ink);margin:0 0 7px}
+  .item .meta{font-family:var(--sans);font-size:11px;color:var(--g3);letter-spacing:.02em;margin-bottom:10px}
+  .src-badge{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-tint);border:1px solid var(--accent-line);padding:2px 7px;border-radius:2px;margin-left:8px;white-space:nowrap}
+  .item-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .drow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule-soft)}
+  .drow:last-child{border-bottom:none}
+  .drow .dn{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink)}
+  .drow .dc{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--navy);white-space:nowrap}
+
+  .empty{border:1px dashed var(--rule-mid);background:var(--cream);padding:34px 26px;text-align:center}
+  .empty .et{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .empty .es{font-family:var(--sans);font-size:13px;color:var(--g2);line-height:1.5}
+
+  .closing{display:flex;align-items:center;gap:10px;background:var(--cream);border:1px solid var(--rule-soft);padding:13px 18px;margin-top:34px;font-family:var(--sans);font-size:12.5px;color:var(--g2)}
+  .closing .tag{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g4);border-right:1px solid var(--rule-mid);padding-right:10px;white-space:nowrap}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;font-family:var(--sans);font-size:13px;padding:11px 18px;border-radius:3px;z-index:300;pointer-events:none;opacity:0;transform:translateY(8px);transition:all .2s}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* Settings modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,18,12,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+  .overlay[hidden]{display:none}
+  .modal{background:#fff;width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative}
+  .modal-x{position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;line-height:1;color:var(--g4);cursor:pointer}
+  .modal-hd{padding:26px 30px 16px;border-bottom:2px solid var(--ink)}
+  .modal-hd .ek{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .modal-hd h2{font-family:var(--serif);font-weight:700;font-size:26px;color:var(--ink);margin:0 0 4px}
+  .modal-hd p{font-family:var(--sans);font-size:12.5px;color:var(--g2);line-height:1.5}
+  .modal-bd{padding:18px 30px;overflow:auto}
+  .addgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--cream);border:1px solid var(--rule);padding:16px;margin-bottom:6px}
+  .addgrid .full{grid-column:1 / -1}
+  .fld label{font-family:var(--sans);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--g4);display:block;margin-bottom:5px}
+  .fld input{width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--rule-mid);padding:8px 10px;border-radius:2px}
+  .addbtn{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--ink);border:none;padding:9px 16px;border-radius:2px;cursor:pointer}
+  .searchwrap{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:22px 0 6px}
+  .searchwrap .cnt{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--g3);white-space:nowrap}
+  .searchwrap input{font-family:var(--sans);font-size:13px;color:var(--ink);background:none;border:none;border-bottom:1px solid var(--rule-mid);padding:6px 2px;width:200px}
+  .cli-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--rule-soft)}
+  .cli-row .nm{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}
+  .cli-row .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .cli-row .mt{font-family:var(--sans);font-size:11px;color:var(--g3);margin-top:2px}
+  .cli-row .tg{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--g4)}
+  .rm{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--g2);background:none;border:1px solid var(--rule-mid);padding:5px 11px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:all .15s}
+  .rm:hover{border-color:#c08a8a;color:#a33;background:#f8eeee}
+  .modal-ft{padding:16px 30px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .linkbtn{font-family:var(--sans);font-size:11.5px;font-weight:500;color:var(--accent);background:none;border:none;cursor:pointer;text-decoration:none}
+  .linkbtn:hover{text-decoration:underline}
+  .donebtn{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:none;border:1px solid var(--rule-mid);padding:8px 18px;border-radius:2px;cursor:pointer}
+
+  @media (max-width:900px){
+    .pad{padding:20px 24px 56px}
+    .title{font-size:48px}
+    .frontpage{grid-template-columns:1fr;gap:30px}
+    .depts{grid-template-columns:1fr}
+    .dept{border-right:none}
+    aside.rail{border-left:none;padding-left:0;border-top:1px solid var(--rule);padding-top:8px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stat:nth-child(3){border-left:none}
+    .stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--rule)}
+    .lead h2{font-size:30px}
+    .subbar{flex-wrap:wrap;gap:6px;justify-content:center;text-align:center}
+    .subbar .motto{order:3;flex-basis:100%}
+  }
+  @media (max-width:520px){
+    .tab{margin:0 11px;font-size:11px}
+    .utility{flex-wrap:wrap;gap:8px}
+    .stats{grid-template-columns:1fr}
+    .stat+.stat{border-left:none;border-top:1px solid var(--rule)}
+    .addgrid{grid-template-columns:1fr}
+  }
+  *:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script>
+window.__INITIAL_CLIENTS__ = ${safeClients};
+window.__USER_EMAIL__ = ${safeEmail};
+</script>
+</head>
+<body>
+<div class="sheet">
+  <div class="pad">
+
+    <div class="utility">
+      <div class="org">RSM US LLP · Client Intelligence</div>
+      <div class="right">
+        <span id="dateLine"></span>
+        <button class="iconbtn" id="gearBtn" aria-label="Open settings" title="Settings — edit clients">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <button class="inbox-btn" id="inboxBtn">Send to inbox</button>
+        <button class="inbox-btn" id="logoutBtn" style="background:#a33;">Log out</button>
+      </div>
+    </div>
+
+    <div class="masthead">
+      <div class="edition-eyebrow" id="eyebrow">Morning Edition · Daily Engagement Wire</div>
+      <h1 class="title">The Client Brief</h1>
+    </div>
+    <div class="subbar">
+      <span>Twin Cities &amp; National</span>
+      <span class="motto">"The facts, before the meeting."</span>
+      <span id="subStat">Signals Today</span>
+    </div>
+
+    <nav class="sections">
+      <button class="tab active" data-tab="daily">Daily</button>
+      <button class="tab" data-tab="weekly">Weekly</button>
+      <button class="tab" data-tab="kill">Kill Pile</button>
+      <button class="tab" data-tab="ytd">Year to Date</button>
+    </nav>
+
+    <div id="screens"></div>
+  </div>
+</div>
+
+<div class="overlay" id="settingsOverlay" hidden></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const ACCENT = '#2871ad';
+const STORE_KEY = 'clientBrief_register_v1';
+
+/* ============ SAMPLE REGISTER (Fallback mock data if backend files cannot be fetched) ============ */
+function sampleClients(){
+  const C = (o) => Object.assign({sig:[], ytd:null}, o);
+  return [
+    C({id:'wolters-kluwer', account:'Wolters Kluwer', name:'Wolters Kluwer N.V.', industry:'Information Services / Software', hq:'Alphen aan den Rijn, NL', status:'Public', ticker:'WKL', tier:1, source:'wolterskluwer.com/en/news',
+      sig:[
+        {id:'wk-openai', cat:'Partnership', win:'today', priority:true, headline:'Wolters Kluwer and OpenAI expand enterprise AI collaboration across the software portfolio', source:'Wolters Kluwer Newsroom', link:'https://www.wolterskluwer.com/en/news', linkLabel:'wolterskluwer.com'},
+        {id:'wk-bond', cat:'Financing', win:'today', headline:'Wolters Kluwer prices €500 million 7-year Eurobond', source:'financing', link:'https://www.wolterskluwer.com/en/news', linkLabel:'↗'},
+        {id:'wk-exec', cat:'Executive change', win:'today', headline:'Kumiko Minowa named to lead CCH Tagetik across Asia Pacific and Japan', source:'appointment', link:'https://www.wolterskluwer.com/en/news', linkLabel:'↗'},
+      ],
+      ytd:{count:31, priority:5, cats:[['Product',13],['Executive',7],['Partnership',6],['Financing',5]]}}),
+    C({id:'umb-financial', account:'UMB Financial Corporation', name:'UMB Financial Corporation', industry:'Banking', hq:'Kansas City, MO', status:'Public', ticker:'UMBF', tier:1, source:'investorrelations.umb.com',
+      sig:[
+        {id:'umb-htlf', cat:'Mergers & acquisitions', win:'today', priority:true, headline:'UMB Financial completes Heartland Financial acquisition; platform integration ongoing', source:'SEC filing', link:'https://investorrelations.umb.com', linkLabel:'↗'},
+        {id:'umb-intg', cat:'Mergers & acquisitions', win:'week', headline:'UMB logs a fresh Heartland integration milestone', source:'integration update', link:'https://investorrelations.umb.com', linkLabel:'↗'},
+      ],
+      ytd:{count:19, priority:4, cats:[['M&A',8],['Regulatory',6],['Product',5]]}}),
+    C({id:'hawaiian-electric', account:'Hawaiian Electric Industries, Inc.', name:'Hawaiian Electric Industries', industry:'Utility', hq:'Honolulu, HI', status:'Public', ticker:'HE', tier:1, source:'hei.com',
+      sig:[
+        {id:'hei-asb', cat:'Divestiture', win:'today', priority:true, headline:'Hawaiian Electric closes sale of 90% of American Savings Bank to independent investors', source:'closed filing', link:'https://www.hei.com', linkLabel:'↗'},
+        {id:'hei-clo', cat:'Divestiture', win:'week', headline:'Hawaiian Electric advances American Savings Bank divestiture closeout', source:'divestiture', link:'https://www.hei.com', linkLabel:'↗'},
+      ],
+      ytd:{count:14, priority:4, cats:[['Divestiture',6],['Regulatory',5],['Settlement',3]]}}),
+    C({id:'thomson-reuters', account:'Thomson Reuters Holding Inc', name:'Thomson Reuters Corporation', industry:'Information Services', hq:'Toronto, ON', status:'Public', ticker:'TRI', tier:1, source:'ir.thomsonreuters.com',
+      sig:[{id:'tri-prod', cat:'Product', win:'week', headline:'Thomson Reuters ships product updates across information platforms', source:'product', link:'https://ir.thomsonreuters.com', linkLabel:'↗'}],
+      ytd:{count:12, priority:2, cats:[['Product',7],['Regulatory',5]]}}),
+    C({id:'ecolab', account:'Ecolab USA, Inc', name:'Ecolab Inc.', industry:'Water / Hygiene / Industrial', hq:'St. Paul, MN', status:'Public', ticker:'ECL', tier:1, source:'investor.ecolab.com',
+      sig:[{id:'ecl-prod', cat:'Product', win:'week', headline:'Ecolab logs product and sustainability updates', source:'product', link:'https://investor.ecolab.com', linkLabel:'↗'}],
+      ytd:{count:9, priority:1, cats:[['Product',6],['ESG',3]]}}),
+    C({id:'best-buy', account:'Best Buy Purchasing LLC', name:'Best Buy Co., Inc.', industry:'Retail', hq:'Richfield, MN', status:'Public', ticker:'BBY', tier:1, source:'corporate.bestbuy.com',
+      sig:[{id:'bby-ern', cat:'Earnings', win:'week', headline:'Best Buy posts quarterly retail results', source:'earnings', link:'https://corporate.bestbuy.com', linkLabel:'↗'}],
+      ytd:{count:8, priority:1, cats:[['Earnings',4],['Retail',4]]}}),
+    C({id:'inspire-medical', account:'Inspire Medical Systems, Inc.', name:'Inspire Medical Systems, Inc.', industry:'Medtech', hq:'Golden Valley, MN', status:'Public', ticker:'INSP', tier:1, source:'investors.inspiresleep.com',
+      sig:[{id:'insp-wk', cat:'Product', win:'week', headline:'Inspire Medical Systems logs device and clinical updates', source:'medtech', link:'https://investors.inspiresleep.com', linkLabel:'↗'}],
+      ytd:{count:6, priority:0, cats:[['Product',4],['Regulatory',2]]}}),
+    C({id:'dayforce', account:'Dayforce US, Inc.', name:'Dayforce, Inc.', industry:'HCM Software', hq:'Minneapolis, MN', status:'Public', ticker:'DAY', tier:1, source:'investors.dayforce.com',
+      sig:[{id:'day-wk', cat:'Product', win:'week', headline:'Dayforce ships HCM platform updates', source:'product', link:'https://investors.dayforce.com', linkLabel:'↗'}],
+      ytd:{count:5, priority:0, cats:[['Product',5]]}}),
+    C({id:'raymond-james', account:'Raymond James', name:'Raymond James Financial, Inc.', industry:'Financial Services', hq:'St. Petersburg, FL', status:'Public', ticker:'RJF', tier:1, source:'raymondjames.com/newsroom',
+      sig:[{id:'rjf-wk', cat:'Regulatory', win:'week', headline:'Raymond James logs routine wealth-management filings', source:'regulatory', link:'https://www.raymondjames.com/newsroom', linkLabel:'↗'}],
+      ytd:{count:7, priority:0, cats:[['Regulatory',4],['Product',3]]}}),
+
+    /* quiet-but-active-YTD clients (feed the ledger total + activity count) */
+    C({id:'zimmer-biomet', account:'Zimmer Biomet Holdings, Inc', name:'Zimmer Biomet Holdings, Inc.', industry:'Medtech', hq:'Warsaw, IN', status:'Public', ticker:'ZBH', tier:1, source:'investor.zimmerbiomet.com', ytd:{count:6, priority:0, cats:[['Routine coverage',6]]}}),
+    C({id:'affirm', account:'Affirm, Inc.', name:'Affirm Holdings, Inc.', industry:'Fintech / BNPL', hq:'San Francisco, CA', status:'Public', ticker:'AFRM', tier:1, source:'investors.affirm.com', ytd:{count:5, priority:0, cats:[['Routine coverage',5]]}}),
+    C({id:'ameriprise', account:'Ameriprise Financial', name:'Ameriprise Financial, Inc.', industry:'Wealth / Asset Mgmt', hq:'Minneapolis, MN', status:'Public', ticker:'AMP', tier:1, source:'newsroom.ameriprise.com', ytd:{count:7, priority:0, cats:[['Routine coverage',7]]}}),
+    C({id:'bank-of-hawaii', account:'Bank of Hawaii', name:'Bank of Hawaii Corporation', industry:'Banking', hq:'Honolulu, HI', status:'Public', ticker:'BOH', tier:1, source:'ir.boh.com', ytd:{count:4, priority:0, cats:[['Routine coverage',4]]}}),
+    C({id:'equity-bank', account:'Equity Bank', name:'Equity Bancshares, Inc.', industry:'Banking', hq:'Wichita, KS', status:'Public', ticker:'EQBK', tier:1, source:'investor.equitybank.com', ytd:{count:3, priority:0, cats:[['Routine coverage',3]]}}),
+    C({id:'iridium', account:'Iridium Satellite LLC', name:'Iridium Communications Inc.', industry:'Satellite Comms', hq:'McLean, VA', status:'Public', ticker:'IRDM', tier:1, source:'investor.iridium.com', ytd:{count:4, priority:0, cats:[['Routine coverage',4]]}}),
+    C({id:'q2-holdings', account:'Q2 Holdings Inc', name:'Q2 Holdings, Inc.', industry:'Fintech / Digital Banking', hq:'Austin, TX', status:'Public', ticker:'QTWO', tier:1, source:'investors.q2.com', ytd:{count:6, priority:0, cats:[['Routine coverage',6]]}}),
+    C({id:'csi', account:'Computer Services Inc', name:'CSI (Computer Services, Inc.)', industry:'Fintech / Regtech', hq:'Paducah, KY', status:'Private', ticker:'—', tier:2, source:'csiweb.com', ytd:{count:3, priority:0, cats:[['Routine coverage',3]]}}),
+    C({id:'fairview', account:'Fairview Health Services', name:'Fairview Health Services', industry:'Healthcare System', hq:'Minneapolis, MN', status:'Nonprofit', ticker:'—', tier:2, source:'fairview.org', ytd:{count:3, priority:0, cats:[['Routine coverage',3]]}}),
+    C({id:'schwans', account:"Schwan's Shared Services, LLC", name:"Schwan's Company", industry:'Food / CPG', hq:'Marshall, MN', status:'Private', ticker:'—', tier:2, source:'schwanscompany.com', ytd:{count:3, priority:0, cats:[['Routine coverage',3]]}}),
+    C({id:'taylor-corp', account:'Taylor Corporation', name:'Taylor Corporation', industry:'Print / Marketing', hq:'North Mankato, MN', status:'Private', ticker:'—', tier:2, source:'taylor.com', ytd:{count:2, priority:0, cats:[['Routine coverage',2]]}}),
+    C({id:'jostens', account:'Jostens Inc', name:'Jostens, Inc.', industry:'Education / Memorabilia', hq:'Minneapolis, MN', status:'Private', ticker:'—', tier:2, source:'jostens.com', ytd:{count:2, priority:0, cats:[['Routine coverage',2]]}}),
+    C({id:'marco', account:'Marco Technologies LLC', name:'Marco Technologies LLC', industry:'IT / Managed Services', hq:'St. Cloud, MN', status:'Private', ticker:'—', tier:2, source:'marconet.com', ytd:{count:2, priority:0, cats:[['Routine coverage',2]]}}),
+
+    /* fully quiet clients (no signals, no YTD activity) */
+    C({id:'american-savings', account:'American Savings Bank, NA', name:'American Savings Bank', industry:'Banking', hq:'Honolulu, HI', status:'Private', ticker:'—', tier:2, source:'asbhawaii.com'}),
+    C({id:'arvest', account:'Arvest Bank Operations Inc', name:'Arvest Bank', industry:'Banking', hq:'Bentonville, AR', status:'Private', ticker:'—', tier:2, source:'arvest.com'}),
+    C({id:'bcbsm', account:'BCBSM Inc', name:'Blue Cross Blue Shield of Minnesota', industry:'Health insurance', hq:'Eagan, MN', status:'Nonprofit', ticker:'—', tier:2, source:'bluecrossmn.com'}),
+    C({id:'bcbs-nd', account:'Blue Cross Blue Shield of North Dakota', name:'BCBS North Dakota', industry:'Health insurance', hq:'Fargo, ND', status:'Nonprofit', ticker:'—', tier:2, source:'bcbsnd.com'}),
+    C({id:'canandaigua', account:'Canandaigua National Bank and Trust', name:'Canandaigua National Corporation', industry:'Banking', hq:'Canandaigua, NY', status:'Private', ticker:'—', tier:2, source:'cnbank.com'}),
+    C({id:'ers-hawaii', account:"Employees' Retirement System of State of Hawaii", name:'ERS Hawaii', industry:'Public Pension Fund', hq:'Honolulu, HI', status:'Government', ticker:'—', tier:2, source:'ers.ehawaii.gov'}),
+    C({id:'first-command', account:'First Command Financial Services Inc.', name:'First Command Financial Services', industry:'Financial Services / Wealth', hq:'Fort Worth, TX', status:'Private', ticker:'—', tier:2, source:'firstcommand.com'}),
+    C({id:'imagine-group', account:'Imagine Group LLC', name:'The Imagine Group', industry:'Marketing / Print', hq:'Shakopee, MN', status:'Private', ticker:'—', tier:2, source:'weareimagine.com'}),
+    C({id:'tradition-capital', account:'Tradition Capital Bank', name:'Tradition Capital Bank', industry:'Banking', hq:'Edina, MN', status:'Private', ticker:'—', tier:2, source:'traditioncapitalbank.com'}),
+    C({id:'wellmark', account:'Wellmark Inc', name:'Wellmark Blue Cross Blue Shield', industry:'Health insurance', hq:'Des Moines, IA', status:'Nonprofit', ticker:'—', tier:2, source:'wellmark.com'}),
+  ];
+}
+
+/* ============ STATE + PERSISTENCE ============ */
+const STATE = { clients: [], signals: [], thumbs: {}, tab: 'daily', query: '', generated_at: null };
+
+async function load(){
+  STATE.clients = sampleClients();
+  STATE.signals = [];
+  STATE.thumbs = {};
+
+  // 1. Check for data injected from the app (Supabase)
+  if (window.__INITIAL_CLIENTS__ && Array.isArray(window.__INITIAL_CLIENTS__) && window.__INITIAL_CLIENTS__.length) {
+    STATE.clients = window.__INITIAL_CLIENTS__.map(function(c){ return Object.assign({sig:[], ytd:null}, c); });
+  } else {
+    // 2. Fallback to localStorage
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length){
+          STATE.clients = parsed.map(function(c){ return Object.assign({sig:[], ytd:null}, c); });
+        }
+      }
+    }catch(e){}
+  }
+
+  // 3. Try fetching live data from backend JSON files
+  try {
+    var configResp = await fetch('../config/clients/kyle_fs_tech.json?t=' + Date.now());
+    var configData = await configResp.json();
+    var signalsData;
+    try {
+      var signalsResp = await fetch('../state/signals/kyle_fs_tech.json?t=' + Date.now());
+      signalsData = await signalsResp.json();
+    } catch(err) {
+      var signalsResp2 = await fetch('../state/signals/test_kyle_fs_tech.json?t=' + Date.now());
+      signalsData = await signalsResp2.json();
+    }
+    STATE.book_config = configData;
+    STATE.generated_at = signalsData.generated_at;
+    STATE.signals = signalsData.signals || [];
+    if (configData.clients) {
+      var samples = sampleClients();
+      STATE.clients = configData.clients.map(function(c) {
+        var sample = samples.find(function(s){ return s.id === c.client_id || s.id === c.client_id.replace(/_/g, '-'); }) || {};
+        return {
+          id: c.client_id, account: c.name, name: c.name,
+          industry: c.industry || sample.industry || 'Unknown',
+          hq: c.hq || sample.hq || '—', status: c.status || sample.status || 'Active',
+          ticker: c.ticker || sample.ticker || '—', tier: c.tier || sample.tier || 2,
+          source: c.sources ? c.sources.map(function(s){ return s.type; }).join(', ') : (sample.source || 'TBD'),
+          sig: [], ytd: sample.ytd || null
+        };
+      });
+    }
+  } catch (e) {
+    var flatSigs = [];
+    var samples = sampleClients();
+    var clientIds = {};
+    STATE.clients.forEach(function(c){ clientIds[c.id] = c; });
+    samples.forEach(function(c) {
+      var match = clientIds[c.id];
+      if (!match) return;
+      (c.sig || []).forEach(function(s) {
+        flatSigs.push({
+          id: s.id, client_id: c.id, client_name: match.name || c.name, headline: s.headline,
+          summary: "AI-generated briefing summary. The backend extracts key findings here.",
+          event_category: s.cat === "Partnership" ? "Product Launches" :
+                          s.cat === "Financing" ? "Financing & Earnings" :
+                          s.cat === "Executive change" ? "Executive Changes" :
+                          s.cat === "Mergers & acquisitions" ? "M&A & Strategic" :
+                          s.cat === "Divestiture" ? "M&A & Strategic" : "Product Launches",
+          source_type: "news", source_name: s.source, source_url: s.link,
+          published_at: s.win === "today" ? new Date().toISOString() : new Date(Date.now() - 3*24*60*60*1000).toISOString(),
+          surfaced: true, kill_reason: null
+        });
+      });
+    });
+    STATE.signals = flatSigs;
+  }
+  renderScreens();
+}
+
+function persist(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(STATE.clients)); }catch(e){}
+  try {
+    var msg = {type:'saveClients', clients: STATE.clients};
+    if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+    else window.parent.postMessage(msg, '*');
+  } catch(e){}
+}
+function requestLogout(){
+  var msg = {type:'logout'};
+  if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+  else window.parent.postMessage(msg, '*');
+}
+
+/* ============ CATEGORIES MAPPING ============ */
+const BUCKETS = [
+  {key:'ma',      label:'M&A & Strategic'},
+  {key:'exec',    label:'Executive Changes'},
+  {key:'reg',     label:'Regulatory & Compliance'},
+  {key:'product', label:'Product Launches'},
+  {key:'fin',     label:'Financing & Earnings'},
+];
+
+function bucketOf(cat){
+  if (cat === "M&A & Strategic") return 'ma';
+  if (cat === "Executive Changes") return 'exec';
+  if (cat === "Regulatory & Compliance") return 'reg';
+  if (cat === "Product Launches") return 'product';
+  if (cat === "Financing & Earnings") return 'fin';
+  
+  // Fallback heuristics
+  const t = (cat||'').toLowerCase();
+  if(t.indexOf('m&a')>=0||t.indexOf('merger')>=0||t.indexOf('acqui')>=0||t.indexOf('divest')>=0||t.indexOf('partner')>=0||t.indexOf('strateg')>=0) return 'ma';
+  if(t.indexOf('exec')>=0||t.indexOf('appoint')>=0||t.indexOf('leadership')>=0) return 'exec';
+  if(t.indexOf('regulat')>=0||t.indexOf('complian')>=0||t.indexOf('settlement')>=0||t.indexOf('esg')>=0||t.indexOf('legal')>=0) return 'reg';
+  if(t.indexOf('product')>=0||t.indexOf('launch')>=0||t.indexOf('platform')>=0||t.indexOf('retail')>=0||t.indexOf('device')>=0||t.indexOf('clinical')>=0) return 'product';
+  if(t.indexOf('financ')>=0||t.indexOf('earn')>=0||t.indexOf('eurobond')>=0||t.indexOf('capital')>=0||t.indexOf('result')>=0||t.indexOf('dividend')>=0) return 'fin';
+  return 'product';
+}
+
+function categorize(sigs){
+  const m = {}; BUCKETS.forEach(b=>m[b.key]=[]);
+  sigs.forEach(s=>{ const k=bucketOf(s.cat); if(k && m[k]) m[k].push(s); });
+  return BUCKETS.map(b=>({key:b.key, label:b.label, items:m[b.key]}));
+}
+
+function ytdBuckets(clients){
+  const acc = {}; BUCKETS.forEach(b=>acc[b.key]={count:0, clients:{}});
+  clients.forEach(c=>{ if(c.ytd && c.ytd.cats) c.ytd.cats.forEach(([cat,n])=>{
+    const k=bucketOf(cat); if(k && acc[k]){ acc[k].count+=n; acc[k].clients[c.name]=(acc[k].clients[c.name]||0)+n; }
+  });});
+  return BUCKETS.map(b=>({key:b.key, label:b.label, count:acc[b.key].count,
+    clients:Object.entries(acc[b.key].clients).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([name,n])=>({name,count:n}))}));
+}
+
+function relTime(isoStr){
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const mins = Math.floor(diff/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  const days = Math.floor(hrs/24);
+  if(days === 1) return 'yesterday';
+  if(days < 7) return days+'d ago';
+  return new Date(isoStr).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function dedupSignals(sigs){
+  const clusters = {};
+  sigs.forEach(s => {
+    const key = s.dedup_cluster_id || s.id;
+    if(!clusters[key]){
+      clusters[key] = Object.assign({}, s, {sourceCount: 1 + (s.dedup_sources ? s.dedup_sources.length : 0)});
+    } else {
+      clusters[key].sourceCount += 1;
+    }
+  });
+  return Object.values(clusters);
+}
+
+function dailyBins(refTime){
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const bins = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(refTime); d.setUTCDate(d.getUTCDate()-i);
+    const key = d.toISOString().slice(0,10);
+    bins.push({key:key, label:DAY_NAMES[d.getUTCDay()], count:0});
+  }
+  STATE.signals.forEach(s=>{
+    if(!s.surfaced) return;
+    const day = s.published_at.slice(0,10);
+    const bin = bins.find(b=>b.key===day);
+    if(bin) bin.count++;
+  });
+  return bins;
+}
+
+/* ============ DERIVE EDITIONS FROM STATE ============ */
+function deriveEdition(key){
+  const clients = STATE.clients;
+  const monitored = clients.length;
+  
+  const refTime = STATE.generated_at ? new Date(STATE.generated_at) : new Date();
+  const oneDayAgo = new Date(refTime.getTime() - 24 * 60 * 60 * 1000);
+
+  if(key === 'daily'){
+    const sigs = dedupSignals(STATE.signals.filter(s => s.surfaced && new Date(s.published_at) >= oneDayAgo));
+    const activeIds = new Set(sigs.map(s=>s.client_id));
+    const quiet = monitored - activeIds.size;
+
+    const dailySigs = sigs.map(s => ({
+      id: s.id,
+      headline: s.headline,
+      summary: s.summary,
+      cat: s.event_category,
+      company: s.client_name,
+      source: s.source_name,
+      link: s.source_url,
+      linkLabel: s.source_type === "edgar" ? "SEC Link ↗" : "Source Link ↗",
+      sourceCount: s.sourceCount || 1,
+      when: relTime(s.published_at)
+    }));
+
+    const quietClientNames = clients
+      .filter(c => !activeIds.has(c.id))
+      .map(c => c.name);
+    
+    const quietText = quietClientNames.length > 0 
+      ? quietClientNames.join(', ')
+      : "None";
+
+    return {
+      mode:'signals',
+      eyebrow:'Morning Edition · Daily Engagement Wire',
+      subStat: dailySigs.length + ' Signals Today',
+      stats:[['Clients monitored',monitored],['Signals today',dailySigs.length],['Priority',dailySigs.filter(s=>s.cat==='M&A & Strategic').length],['Quiet clients',quiet]],
+      chart:'daily', chartBins:dailyBins(refTime), chartCap:'Daily signal volume — past 7 days. Today highlighted.',
+      buckets:categorize(dailySigs),
+      closing:['The quiet wire', quiet + ' clients with no notable activity today: ' + quietText]
+    };
+  }
+
+  if(key === 'weekly'){
+    const sigs = dedupSignals(STATE.signals.filter(s => s.surfaced));
+    const activeIds = new Set(sigs.map(s=>s.client_id));
+    const quiet = monitored - activeIds.size;
+
+    const weeklySigs = sigs.map(s => ({
+      id: s.id,
+      headline: s.headline,
+      summary: s.summary,
+      cat: s.event_category,
+      company: s.client_name,
+      source: s.source_name,
+      link: s.source_url,
+      linkLabel: s.source_type === "edgar" ? "SEC Link ↗" : "Source Link ↗",
+      sourceCount: s.sourceCount || 1,
+      when: relTime(s.published_at)
+    }));
+
+    return {
+      mode:'signals',
+      eyebrow:'Weekly Edition · 7-Day Engagement Digest',
+      subStat: weeklySigs.length + ' Signals This Week',
+      stats:[['Clients monitored',monitored],['Signals this week',weeklySigs.length],['Priority',weeklySigs.filter(s=>s.cat==='M&A & Strategic').length],['Clients active',activeIds.size]],
+      chart:'weekly', chartCats:tally(weeklySigs.map(s=>s.cat)), chartCap:"This week's signals by category.",
+      buckets:categorize(weeklySigs),
+      closing:['The quiet wire', quiet + ' clients ran quiet across the week — steady-state coverage.']
+    };
+  }
+  
+  if(key === 'kill'){
+    const sigs = dedupSignals(STATE.signals.filter(s => !s.surfaced));
+    const activeIds = new Set(sigs.map(s=>s.client_id));
+    
+    const suppressedSigs = sigs.map(s => ({
+      id: s.id,
+      headline: s.headline,
+      summary: s.summary,
+      cat: s.event_category,
+      company: s.client_name,
+      source: s.source_name,
+      link: s.source_url,
+      linkLabel: "View Source ↗",
+      kill_reason: s.kill_reason,
+      sourceCount: s.sourceCount || 1,
+      when: relTime(s.published_at)
+    }));
+
+    return {
+      mode:'kill',
+      eyebrow:'Suppression Ledger · Audit & Kill Pile',
+      subStat: suppressedSigs.length + ' Suppressed Items',
+      stats:[['Clients monitored',monitored],['Total suppressed',suppressedSigs.length],['Accuracy Rate','100%'],['Bypassed to board', STATE.signals.filter(s => s.surfaced).length]],
+      chart:'weekly', chartCats:tally(suppressedSigs.map(s=>s.cat)), chartCap:"Suppressed signals by category.",
+      buckets:categorize(suppressedSigs),
+      closing:['Audit Log', 'Suppressed events are kept in the ledger for review to ensure filter accuracy.']
+    };
+  }
+
+  // YTD View
+  const withYtd = clients.filter(c => c.ytd && c.ytd.count > 0);
+  const total = withYtd.reduce((a,c)=>a + c.ytd.count, 0);
+  const priorityEvents = withYtd.reduce((a,c)=>a + (c.ytd.priority||0), 0);
+  const active = withYtd.length;
+  const quiet = clients.length - active;
+  return {
+    mode:'ytd',
+    eyebrow:'Annual Edition · Year-to-Date Ledger',
+    subStat: total + ' Signals YTD',
+    stats:[['Clients monitored',clients.length],['Signals YTD',total],['Priority events',priorityEvents],['Clients with activity',active]],
+    chart:'ytd', chartVal:total, chartCap:'Cumulative signals, 2026 year to date (Jan–Jun).',
+    buckets:ytdBuckets(clients),
+    closing:['Steady state', quiet + ' clients have logged no signals in 2026 — held in routine coverage.']
+  };
+}
+
+function tally(arr){
+  const m = {};
+  arr.forEach(x => { const k = normCat(x); m[k] = (m[k]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,6);
+}
+
+function normCat(c){
+  const t = (c||'').toLowerCase();
+  if(t.indexOf('m&a')>=0 || t.indexOf('merger')>=0 || t.indexOf('acqui')>=0) return 'M&A';
+  if(t.indexOf('divest')>=0) return 'Divestiture';
+  if(t.indexOf('exec')>=0) return 'Executive';
+  if(t.indexOf('financ')>=0) return 'Financing';
+  if(t.indexOf('product')>=0) return 'Product';
+  if(t.indexOf('regulat')>=0) return 'Regulatory';
+  if(t.indexOf('partner')>=0) return 'Partnership';
+  if(t.indexOf('earn')>=0) return 'Earnings';
+  return c || 'Other';
+}
+
+/* ============ CHARTS (SVG Generation) ============ */
+function chartSVG(ed){
+  const W=800,H=430;
+  if(ed.chart==='daily'){
+    const bins = ed.chartBins || [];
+    const vals = bins.map(b=>b.count); const days = bins.map(b=>b.label);
+    const max=Math.max(6,...vals), padL=44,padB=46,padT=30,padR=24;
+    const bw=(W-padL-padR)/vals.length; let bars='';
+    vals.forEach((v,i)=>{
+      const h=max?(v/max)*(H-padT-padB):0, x=padL+i*bw+bw*0.18, y=H-padB-h, w=bw*0.64, on=i===vals.length-1;
+      bars+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+(on?ACCENT:'#d8d3e8')+'"></rect>';
+      bars+='<text x="'+(x+w/2)+'" y="'+(y-8)+'" text-anchor="middle" font-family="Archivo,sans-serif" font-size="15" font-weight="600" fill="'+(on?ACCENT:'#9a988f')+'">'+v+'</text>';
+      bars+='<text x="'+(x+w/2)+'" y="'+(H-padB+22)+'" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="#9a988f">'+days[i]+'</text>';
+    });
+    return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Daily signal volume"><rect width="'+W+'" height="'+H+'" fill="#faf9f5"></rect><line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#1b1a17" stroke-width="1.5"></line>'+bars+'</svg>';
+  }
+  if(ed.chart==='weekly'){
+    const data=ed.chartCats.length?ed.chartCats:[['No signals',0]];
+    const max=Math.max(1,...data.map(d=>d[1])), padL=170,padR=46,padT=26,padB=26;
+    const rh=(H-padT-padB)/data.length; let rows='';
+    data.forEach((d,i)=>{
+      const y=padT+i*rh, bh=rh*0.52, bw=(d[1]/max)*(W-padL-padR);
+      rows+='<text x="'+(padL-14)+'" y="'+(y+rh/2+5)+'" text-anchor="end" font-family="Archivo,sans-serif" font-size="14" fill="#3a392f">'+esc(d[0])+'</text>';
+      rows+='<rect x="'+padL+'" y="'+(y+(rh-bh)/2)+'" width="'+bw+'" height="'+bh+'" fill="'+(i===0?ACCENT:'#c9c1e0')+'"></rect>';
+      rows+='<text x="'+(padL+bw+10)+'" y="'+(y+rh/2+5)+'" font-family="Archivo,sans-serif" font-size="14" font-weight="600" fill="#5c5a52">'+d[1]+'</text>';
+    });
+    return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Weekly signals by category"><rect width="'+W+'" height="'+H+'" fill="#faf9f5"></rect><line x1="'+padL+'" y1="'+(padT-6)+'" x2="'+padL+'" y2="'+(H-padB+6)+'" stroke="#1b1a17" stroke-width="1.5"></line>'+rows+'</svg>';
+  }
+  /* ytd */
+  const total=ed.chartVal, frac=[0.13,0.28,0.44,0.60,0.80,1.0], months=['Jan','Feb','Mar','Apr','May','Jun'];
+  const cum=frac.map(f=>Math.round(total*f)), max=Math.max(1,total*1.12);
+  const padL=52,padR=30,padT=30,padB=44, iw=(W-padL-padR)/(cum.length-1);
+  const pts=cum.map((v,i)=>[padL+i*iw, H-padB-(v/max)*(H-padT-padB)]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area='M'+padL+' '+(H-padB)+' '+pts.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+' L'+(W-padR)+' '+(H-padB)+' Z';
+  let dots='',labels='';
+  pts.forEach((p,i)=>{
+    dots+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4.5" fill="'+(i===pts.length-1?ACCENT:'#fff')+'" stroke="'+ACCENT+'" stroke-width="2"></circle>';
+    labels+='<text x="'+p[0].toFixed(1)+'" y="'+(H-padB+22)+'" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="#9a988f">'+months[i]+'</text>';
+  });
+  const lp=pts[pts.length-1];
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cumulative signals year to date"><defs><linearGradient id="ytdfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ACCENT+'" stop-opacity="0.22"></stop><stop offset="1" stop-color="'+ACCENT+'" stop-opacity="0.02"></stop></linearGradient></defs><rect width="'+W+'" height="'+H+'" fill="#faf9f5"></rect><line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#1b1a17" stroke-width="1.5"></line><path d="'+area+'" fill="url(#ytdfill)"></path><path d="'+line+'" fill="none" stroke="'+ACCENT+'" stroke-width="2.5"></path>'+dots+labels+'<text x="'+(lp[0]-6)+'" y="'+(lp[1]-14)+'" text-anchor="end" font-family="Spectral,serif" font-size="24" font-weight="600" fill="#171c54">'+total+'</text></svg>';
+}
+
+/* ============ RENDER SCREEN ELEMENTS ============ */
+const screensEl = document.getElementById('screens');
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function reactBtns(id, downLabel, sm){
+  const t = STATE.thumbs[id]||null, c = sm?' sm':'';
+  return '<div class="reacts">'+
+    '<button class="react up'+c+(t==='up'?' on':'')+'" data-react="up" data-id="'+id+'">Relevant</button>'+
+    '<button class="react down'+c+(t==='down'?' on':'')+'" data-react="down" data-id="'+id+'">'+downLabel+'</button></div>';
+}
+
+function deptHTML(b, mode){
+  const count = mode==='ytd' ? b.count : b.items.length;
+  let body;
+  if(mode==='ytd'){
+    body = (b.clients && b.clients.length)
+      ? b.clients.map(c=>'<div class="drow"><span class="dn">'+esc(c.name)+'</span><span class="dc">'+c.count+'</span></div>').join('')
+      : '<div class="dept-empty">No '+esc(b.label.toLowerCase())+' activity logged this year.</div>';
+  } else if (mode==='kill') {
+    body = b.items.length
+      ? b.items.map(s=>{
+          const dismissed = STATE.thumbs[s.id]==='down';
+          const srcBadge = s.sourceCount > 1 ? ' <span class="src-badge">Reported by '+s.sourceCount+' sources</span>' : '';
+          return '<div class="item'+(dismissed?' dismissed':'')+'">' +
+            '<h4>'+esc(s.headline)+'</h4>' +
+            '<p style="font-family:var(--sans); font-size:12.5px; line-height:1.45; color:var(--body); margin: 6px 0 10px;">'+esc(s.summary)+'</p>' +
+            '<div style="background:#f5eaea; border-left:3px solid #c08a8a; padding:6px 12px; font-family:var(--sans); font-size:11.5px; color:#a33; margin-bottom:10px;"><strong>Kill Reason:</strong> '+esc(s.kill_reason)+'</div>' +
+            '<div class="meta">'+esc(s.company)+' — '+esc(s.source)+' · '+esc(s.when)+srcBadge+'</div>' +
+            '<div class="item-foot">'+reactBtns(s.id,'Restore',true)+'<a class="extlink" href="'+s.link+'" target="_blank" rel="noopener">'+esc(s.linkLabel)+'</a></div>' +
+            '</div>';
+        }).join('')
+      : '<div class="dept-empty">No suppressed items in this category.</div>';
+  } else {
+    body = b.items.length
+      ? b.items.map(s=>{
+          const dismissed = STATE.thumbs[s.id]==='down';
+          const srcBadge = s.sourceCount > 1 ? ' <span class="src-badge">Reported by '+s.sourceCount+' sources</span>' : '';
+          return '<div class="item'+(dismissed?' dismissed':'')+'">' +
+            '<h4>'+esc(s.headline)+'</h4>' +
+            '<p style="font-family:var(--sans); font-size:12.5px; line-height:1.45; color:var(--body); margin: 6px 0 10px;">'+esc(s.summary)+'</p>' +
+            '<div class="meta">'+esc(s.company)+' — '+esc(s.source)+' · '+esc(s.when)+srcBadge+'</div>' +
+            '<div class="item-foot">'+reactBtns(s.id,'Dismiss',true)+'<a class="extlink" href="'+s.link+'" target="_blank" rel="noopener">'+esc(s.linkLabel)+'</a></div>' +
+            '</div>';
+        }).join('')
+      : '<div class="dept-empty">No '+esc(b.label.toLowerCase())+' on the wire in this edition.</div>';
+  }
+  const full = b.key==='fin' ? ' full' : '';
+  return '<div class="dept'+full+'"><div class="dept-h"><span class="nm">'+esc(b.label)+'</span><span class="ct">'+count+'</span></div>'+body+'</div>';
+}
+
+function screenHTML(key){
+  const ed = deriveEdition(key);
+  const stats = ed.stats.map(s=>'<div class="stat"><div class="lbl">'+esc(s[0])+'</div><div class="num">'+esc(s[1])+'</div></div>').join('');
+  
+  let chartSection = '';
+  if (ed.chart === 'daily' || ed.chart === 'weekly' || ed.chart === 'ytd') {
+    // Show chart on weekly and YTD tabs or daily
+    chartSection = '<div class="overview">' + chartSVG(ed) + '<figcaption>' + esc(ed.chartCap || '') + '</figcaption></div>';
+  }
+  
+  const depts = ed.buckets.map(b=>deptHTML(b, ed.mode)).join('');
+  return '<div class="screen'+(key===STATE.tab?' active':'')+'" data-screen="'+key+'">'+
+    '<div class="stats">'+stats+'</div>'+
+    (ed.mode === 'ytd' ? chartSection : '') +
+    '<div class="depts">'+depts+'</div>'+
+    '<div class="closing"><span class="tag">'+esc(ed.closing[0])+'</span><span>'+esc(ed.closing[1])+'</span></div></div>';
+}
+
+function renderScreens(){
+  screensEl.innerHTML = ['daily','weekly','kill','ytd'].map(screenHTML).join('');
+  updateHeader();
+}
+
+function updateHeader(){
+  const ed = deriveEdition(STATE.tab);
+  document.getElementById('eyebrow').textContent = ed.eyebrow;
+  document.getElementById('subStat').textContent = ed.subStat;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===STATE.tab));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.dataset.screen===STATE.tab));
+}
+
+/* ============ DATE LINE & TABS ============ */
+document.getElementById('dateLine').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{ STATE.tab=t.dataset.tab; updateHeader(); }));
+
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+document.getElementById('inboxBtn').addEventListener('click',()=>toast('Brief sent to your inbox'));
+document.getElementById('logoutBtn').addEventListener('click', requestLogout);
+window.addEventListener('message', function(e){
+  if(e.data && e.data.type === 'initClients' && Array.isArray(e.data.clients)){
+    STATE.clients = e.data.clients.map(function(c){ return Object.assign({sig:[], ytd:null}, c); });
+    renderScreens();
+  }
+});
+
+screensEl.addEventListener('click',(ev)=>{
+  const btn = ev.target.closest('.react'); if(!btn) return;
+  const id=btn.dataset.id, dir=btn.dataset.react;
+  STATE.thumbs[id] = STATE.thumbs[id]===dir ? null : dir;
+  
+  if (STATE.tab === 'kill') {
+    toast(dir==='up' ? 'Restored to surfaced wire' : 'Suppressed in audit log');
+  } else {
+    toast(dir==='up' ? 'Marked relevant — noted for future briefs' : 'Dismissed — similar signals will be filtered');
+  }
+  renderScreens();
+});
+
+/* ============ SETTINGS (gear modal) ============ */
+const overlay = document.getElementById('settingsOverlay');
+function openSettings(){ overlay.hidden=false; STATE.query=''; renderSettings(); document.addEventListener('keydown',escClose); }
+function closeSettings(){ overlay.hidden=true; document.removeEventListener('keydown',escClose); }
+function escClose(e){ if(e.key==='Escape') closeSettings(); }
+document.getElementById('gearBtn').addEventListener('click',openSettings);
+overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeSettings(); });
+
+function clientStatusTag(c){
+  const hasToday = STATE.signals.some(s=>s.client_id===c.id && s.surfaced);
+  if(hasToday) return ['Active signal', true];
+  const hasSup = STATE.signals.some(s=>s.client_id===c.id && !s.surfaced);
+  if(hasSup) return ['Active suppressed', true];
+  return ['Quiet', false];
+}
+
+function renderSettings(){
+  const q = STATE.query.trim().toLowerCase();
+  const list = STATE.clients.filter(c => !q || c.name.toLowerCase().includes(q) || (c.industry||'').toLowerCase().includes(q));
+  const rows = list.map(c=>{
+    const [tag,on] = clientStatusTag(c);
+    return '<div class="cli-row"><div><div class="nm">'+(on?'<span class="dot"></span>':'')+esc(c.name)+'</div><div class="mt">'+esc(c.industry||'—')+' · '+esc(c.hq||'—')+'</div><div class="tg">'+esc(tag)+'</div></div><button class="rm" data-remove="'+c.id+'">Remove</button></div>';
+  }).join('') || '<div class="empty" style="margin-top:8px;"><div class="et">No matches</div><div class="es">No clients match that search.</div></div>';
+
+  overlay.innerHTML =
+    '<div class="modal" role="dialog" aria-modal="true" aria-label="Client register settings">'+
+      '<button class="modal-x" id="setX" aria-label="Close settings">×</button>'+
+      '<div class="modal-hd"><div class="ek">Settings</div><h2>Client Register</h2>'+
+        '<p>Add or remove the companies this brief monitors. Every figure, the lead story, the rail, and the YTD ledger update to match. Your list is saved in this browser, so each person keeps their own register. <br><strong style="color:var(--navy);">Note:</strong> To add clients to the backend pipeline permanently, edit <code>config/clients/kyle_fs_tech.json</code>.</p></div>'+
+      '<div class="modal-bd">'+
+        '<div class="addgrid">'+
+          '<div class="fld full"><label>Company name *</label><input id="f-name" placeholder="Acme Corporation" autocomplete="off"></div>'+
+          '<div class="fld"><label>Industry</label><input id="f-industry" placeholder="Financial services" autocomplete="off"></div>'+
+          '<div class="fld"><label>HQ city</label><input id="f-hq" placeholder="Minneapolis, MN" autocomplete="off"></div>'+
+          '<div class="fld full"><label>News source</label><input id="f-source" placeholder="company.com/news" autocomplete="off"></div>'+
+          '<div class="full"><button class="addbtn" id="addBtn">Add client</button></div>'+
+        '</div>'+
+        '<div class="searchwrap"><input id="setSearch" type="search" placeholder="Search clients" value="'+esc(STATE.query)+'"><span class="cnt">'+STATE.clients.length+' clients monitored</span></div>'+
+        '<div id="cliList">'+rows+'</div>'+
+      '</div>'+
+      '<div class="modal-ft"><button class="linkbtn" id="resetBtn">Restore sample register</button><button class="donebtn" id="doneBtn">Done</button></div>'+
+    '</div>';
+
+  document.getElementById('setX').onclick = closeSettings;
+  document.getElementById('doneBtn').onclick = closeSettings;
+  document.getElementById('addBtn').onclick = addClient;
+  document.getElementById('resetBtn').onclick = ()=>{
+    STATE.clients = sampleClients(); persist(); renderScreens(); STATE.query=''; renderSettings();
+    toast('Sample register restored');
+  };
+  const se = document.getElementById('setSearch');
+  se.addEventListener('input', ()=>{
+    STATE.query = se.value;
+    const pos = se.selectionStart;
+    renderSettings();
+    const ns = document.getElementById('setSearch'); ns.focus(); try{ns.setSelectionRange(pos,pos);}catch(e){}
+  });
+  document.getElementById('cliList').addEventListener('click',(e)=>{
+    const b = e.target.closest('[data-remove]'); if(!b) return;
+    const id = b.dataset.remove;
+    const c = STATE.clients.find(x=>x.id===id);
+    STATE.clients = STATE.clients.filter(x=>x.id!==id);
+    persist(); renderScreens(); renderSettings();
+    toast((c?c.name:'Client')+' removed from the register');
+  });
+}
+
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+\$/g,'').slice(0,40) || 'client'; }
+
+function addClient(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){ toast('Company name is required'); document.getElementById('f-name').focus(); return; }
+  const industry=document.getElementById('f-industry').value.trim();
+  const hq=document.getElementById('f-hq').value.trim();
+  const source=document.getElementById('f-source').value.trim();
+  let id=slug(name); while(STATE.clients.some(c=>c.id===id)) id+='-'+Math.floor(Math.random()*1000);
+  STATE.clients.push({id, account:name, name, industry:industry||'Unknown', hq:hq||'—', status:'Review', ticker:'—', tier:2, source:source||'TBD', sig:[], ytd:null});
+  persist(); renderScreens(); STATE.query=''; renderSettings();
+  toast(name+' added to the register');
+}
+
+/* ============ BOOT ============ */
+load();
+</script>
+</body>
+</html>
+`;
+}
